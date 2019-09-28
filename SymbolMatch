@@ -1,0 +1,102 @@
+//判断算术表达式中的三种括号 “{[( )]}”是否配对。
+#include <iostream>
+#include <stdio.h>
+#include <malloc.h>
+#define OK 1
+#define ERROR 0
+#define STACK_INIT_SIZE 100
+#define STACKINCREMENT 10
+using namespace std;
+
+typedef struct{
+    char *base;
+    char *top;
+    int length;
+    int stacksize;
+}SqStack;
+
+int InitStack(SqStack &S)
+{
+    S.length = 0;
+    S.base = (char *)malloc(STACK_INIT_SIZE * sizeof(char));
+    if(!S.base)
+        exit(0);
+    S.top = S.base;
+    S.stacksize = STACK_INIT_SIZE;
+    return OK;
+}
+
+int Push(SqStack &S,char e)
+{
+    if((S.top - S.base) >= S.stacksize)
+    {
+        S.base = (char*)realloc(S.base,(S.stacksize + STACKINCREMENT) * sizeof(char));
+        if(!S.base)
+            exit(0);
+        S.top = S.base + S.stacksize;
+        S.stacksize += STACKINCREMENT;
+    }
+    *S.top = e;
+    S.top++;
+    S.length++;
+    return OK;
+}
+
+int Pop(SqStack &S,char &e)
+{
+    if(S.base == S.top)
+        return ERROR;
+    e = *(S.top - 1);
+    S.top--;
+    S.length--;
+    return OK;
+}
+
+int Display(SqStack S)
+{
+    if(S.base == S.top)
+        return ERROR;
+    while(S.top > S.base)
+    {
+        cout << *S.base << " ";
+        S.base++;
+    }
+    return OK;
+}
+
+bool Judgement(SqStack &S,char &e)
+{
+    cout << "Please input the symbol string:" << endl;
+    for(int i = 0;e != '\n';i++)
+    {
+        e = getchar();
+        if(e == ']'&& *(S.top-1) == '[' || e == '}'&& *(S.top-1) == '{' || e == ')'&& *(S.top-1) == '(')
+            Pop(S,e);
+        else if(e == '(' || e == '[' || e == '{')
+            Push(S,e);            
+        else
+            continue;            
+        cout << endl;
+    }
+    if(S.top == S.base)
+        return true;
+    else
+        return false; 
+}
+
+int main()
+{
+    char ch;    
+    SqStack S;
+    InitStack(S);
+    switch(Judgement(S,ch))
+    {
+        case 0:
+            cout << "not match!" << endl;break;
+        case 1:
+            cout << "match!" << endl;break;
+        default:break;
+    }
+    system("pause");
+    return 0;
+}
