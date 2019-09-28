@@ -1,0 +1,90 @@
+//使用链式栈将10进制数字转化为d（d<=10）进制的数字
+#include <iostream>
+#include <stdio.h>
+#include <malloc.h>
+#define OK 1
+#define ERROR 0
+#define STACK_INIT_SIZE 100
+#define STACKINCREMENT 10
+using namespace std;
+
+typedef struct{
+    int *base;
+    int *top;
+    int length;
+    int stacksize;
+}SqStack;
+
+int InitStack(SqStack &S)
+{
+    S.length = 0;
+    S.base = (int *)malloc(STACK_INIT_SIZE * sizeof(int));
+    if(!S.base)
+        exit(0);
+    S.top = S.base;
+    S.stacksize = STACK_INIT_SIZE;
+    return OK;
+}
+
+int Push(SqStack &S,int e)
+{
+    if((S.top - S.base) >= S.stacksize)
+    {
+        S.base = (int*)realloc(S.base,(S.stacksize + STACKINCREMENT) * sizeof(int));
+        if(!S.base)
+            exit(0);
+        S.top = S.base + S.stacksize;
+        S.stacksize += STACKINCREMENT;
+    }
+    *S.top = e;
+    S.top++;
+    S.length++;
+    return OK;
+}
+
+int Pop(SqStack &S,int &e)
+{
+    if(S.base == S.top)
+        return ERROR;
+    e = *(S.top - 1);
+    S.top--;
+    S.length--;
+    return OK;
+}
+
+int StackEmpty(SqStack S)
+{
+    if(S.base == S.top)
+        return OK;
+    else
+        return ERROR;
+}
+
+int Conversation(SqStack &S,int e,int d)
+{
+    int N;
+    cout << "Please input a decimal number: ";
+    cin >> N;
+    while(N)
+    {
+        Push(S,(N % d));
+        N = N / d;
+    }
+    cout << "The octal number is: ";
+    while(!StackEmpty(S))
+    {
+        Pop(S,e);
+        cout << e;
+    }
+}
+int main()
+{
+    int e,d;
+    cout << "Please input the target system(target < 10): ";
+    cin >> d;
+    SqStack S;
+    InitStack(S);
+    Conversation(S,e,d);
+    system("pause");
+    return 0;
+}
