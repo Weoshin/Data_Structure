@@ -1,0 +1,205 @@
+//十以内的加减乘除，最后输入#表示结束
+#include <iostream>
+#include <stdio.h>
+#include <malloc.h>
+#define OK 1
+#define ERROR 0
+#define TRUE 1
+#define FALSE 0
+#define STACK_INIT_SIZE 100
+#define STACKINCREMENT 10
+using namespace std;
+
+typedef struct
+{
+	char *base;
+	char *top;
+	int stacksize;
+}SqStack;
+
+int InitStack(SqStack &S)
+{
+	S.base = (char*)malloc(STACK_INIT_SIZE * sizeof(char));
+	if(!S.base)
+		exit(0);
+	S.top = S.base;
+	S.stacksize = STACK_INIT_SIZE;
+	return OK;
+}
+
+char GetTop(SqStack &S,char e)
+{
+	if(S.top == S.base)
+		return ERROR;
+	e = *(S.top - 1);
+	return e;
+}
+
+int Push(SqStack &S,char e)
+{
+	if(S.top - S.base >= STACK_INIT_SIZE)
+	{
+		S.base = (char*)realloc(S.base,(S.stacksize + STACKINCREMENT) * sizeof(char));
+		if(!S.base)
+			exit(0);
+		S.top = S.base + S.stacksize;
+		S.stacksize += STACKINCREMENT;
+	}
+	*S.top = e;
+	S.top++;
+	return OK;
+}
+
+int Pop(SqStack &S,char &e)
+{
+	if(S.base == S.top)
+		return ERROR;
+	S.top--;
+	e = *S.top;
+	return OK;
+}
+
+bool StackEmpty(SqStack &S)
+{
+	if(S.base == S.top)
+		return true;
+	else
+		return false;	
+}
+
+int Display(SqStack S)
+{
+    if(S.base == S.top)
+        return ERROR;
+    while(S.top > S.base)
+    {
+        cout << *S.base << " ";
+        S.base++;
+    }
+    return OK;
+}
+
+char Precede(char t1,char t2)
+ { // 判断两符号的优先关系,t1是栈顶，t2是输入
+    char f;
+   switch(t2)
+   {
+     case '+':
+     case '-':if(t1=='('||t1=='#')
+                f='<';
+              else
+                f='>';
+              break;
+     case '*':
+     case '/':if(t1=='*'||t1=='/'||t1==')')
+                f='>';
+              else
+                f='<';
+              break;
+     case '(':if(t1==')')
+              {
+            	printf("ERROR1\n");
+                exit(ERROR);
+              }
+              else
+                f='<';
+              break;
+     case ')':switch(t1)
+              {
+				case '(':f='=';
+			 	break;
+				case '#':printf("ERROR2\n");
+			 	exit(ERROR);
+				default: f='>';break;
+	      		}
+	      	break;
+     case '#':switch(t1)
+	      {
+			case '#':f='=';
+			 	break;
+			case '(':printf("ERROR3\n");
+			 	exit(ERROR);
+			default: f='>';
+            }
+   }
+   return f;
+ }
+
+ int In(char c)
+ { // 判断c是否为运算符
+   switch(c)
+   {
+     case '+':
+     case '-':
+     case '*':
+     case '/':
+     case '(':
+     case ')':
+     case '#':return TRUE;
+     default:return FALSE;
+   }
+ }
+
+ char Operate(char a,char theta,char b)
+ {
+   char c;
+   a=a-48;
+   b=b-48;
+   switch(theta)
+   {
+     case '+':c=a+b+48;
+             break;
+     case '-':c=a-b+48;
+             break;
+     case '*':c=a*b+48;
+             break;
+     case '/':c=a/b+48;break;
+   }
+   return c;
+ }
+
+ char EvaluateExpression() 
+ {                       //OPTR和OPND分别为运算符栈和运算数栈
+   SqStack OPTR,OPND;
+   char a,b,c,x,theta;
+   InitStack(OPTR);
+   Push(OPTR,'#');
+   InitStack(OPND);
+   c=getchar();
+   GetTop(OPTR,x);
+   while(c!='#'||GetTop(OPTR,x)!='#')
+   {
+    	if(In(c))
+		{ // 是7种运算符之一
+			switch(Precede(GetTop(OPTR,x),c))//x是OPTR栈顶元素，c是输入元素
+			{
+				case '<':Push(OPTR,c); // 栈顶元素优先权低
+					c=getchar();
+					break;
+				case '=':Pop(OPTR,x); // 脱括号并接收下一字符
+					c=getchar();
+					break;
+				case '>':Pop(OPTR,theta); // 退栈并将运算结果入栈
+					Pop(OPND,b);
+					Pop(OPND,a);
+					Push(OPND,Operate(a,theta,b));
+					break;
+			}
+		}
+     	else if(c>='0'&&c<='9') // c是操作数
+     	{
+       		Push(OPND,c);
+       		c=getchar();
+     	}
+     	GetTop(OPTR,x);
+   }
+   return GetTop(OPND,x);
+ }
+
+ int main()
+ {
+   printf("Please input\n");
+   cout << EvaluateExpression();
+   system("pause");
+   return 0;
+ }
