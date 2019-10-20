@@ -1,0 +1,130 @@
+//三元组顺序表表示矩阵相加、转置
+#include <iostream>
+#include <stdio.h>
+#include <malloc.h>
+#include <iomanip>
+#define OK 1
+#define ERROR 0
+#define MAXSIZE 12500
+using namespace std;
+
+typedef struct
+{
+    int i,j;
+    int e;
+}Tripe;
+typedef struct 
+{
+    Tripe data[MAXSIZE + 1];
+    int mu,nu,tu;//矩阵的行，列，非零元个数
+}TSMatrix;
+
+int CreateSMatrix(TSMatrix &M)
+{
+    int i,n,m;
+    int e;
+    cout << "input row,col,!0 number: " << endl;
+    cin >> M.mu >> M.nu >> M.tu;
+    M.data[0].i = 0;
+    for(int i = 1;i <= (M.mu * M.nu);i++)
+    {
+        M.data[i].i = ((i - 1) / M.nu + 1);
+        M.data[i].j = ((i - 1) % M.nu + 1);
+        M.data[i].e = 0;
+    }
+    for(int i = 1;i <= M.tu;i++)
+    {
+        cout << "Input the " << i << "th elem's row,col,value:";
+        cin >> m >> n >> e;   
+        M.data[(m - 1) * M.nu + n].i = m;
+        M.data[(m - 1) * M.nu + n].j = n;
+        M.data[(m - 1) * M.nu + n].e = e;
+    }
+    return OK;
+}
+
+int InitSMatrix(TSMatrix &M)
+{
+    int i,n,m;
+    int e;
+    cout << "input row,col,!0 number: " << endl;
+    cin >> M.mu >> M.nu >> M.tu;
+    M.data[0].i = 0;
+    for(int i = 1;i <= (M.mu * M.nu);i++)
+    {
+        M.data[i].i = ((i - 1) / M.nu + 1);
+        M.data[i].j = ((i - 1) % M.nu + 1);
+        M.data[i].e = 0;
+    }
+    return OK;
+}
+
+int PrintSMatrix(TSMatrix M)
+{
+    int i; 
+    for(i = 1;i <= (M.mu * M.nu);i++)
+    {
+        std::cout << std::left << std::setw(3) << M.data[i].e;
+        if(i % M.mu == 0)
+            cout << endl;
+    }
+    return OK;
+}
+
+TSMatrix AddSMtrix(TSMatrix &Mc,TSMatrix Ma,TSMatrix Mb)
+{
+    for(int i = 1;i <= Ma.mu * Ma.nu;i++)
+    {
+        Mc.data[i].i = ((i - 1) / Ma.nu + 1);
+        Mc.data[i].j = ((i - 1) % Ma.nu + 1);
+        Mc.data[i].e = Ma.data[i].e + Mb.data[i].e;
+    }
+    return Mc;
+}
+
+int TransSMatrix(TSMatrix &T,TSMatrix M)
+{
+    int q,col,p;
+    T.mu = M.mu;
+    T.nu = M.mu; 
+    T.tu = M.tu;
+    if(T.tu)
+    {
+        q = 1;
+        p = 1;
+        for(int k = 1;k <= (M.mu * M.nu);k++)
+        {
+            T.data[q].i = M.data[p].j;
+            T.data[q].j = M.data[p].i;
+            T.data[q].e = M.data[(T.data[q].i - 1) * T.mu + T.data[q].j].e;
+            q++;
+            p++;
+        }
+    }
+    return OK;
+}
+
+int main()
+{
+    TSMatrix Ma,Mb,Mc,Mt;
+    CreateSMatrix(Ma);
+    cout << "SMatrix Ma:" << endl;
+    PrintSMatrix(Ma);
+    CreateSMatrix(Mb);
+    cout << "SMatrix Mb:" << endl;
+    PrintSMatrix(Mb);
+    InitSMatrix(Mc);
+    AddSMtrix(Mc,Ma,Mb);
+    cout << "Mc : Ma + Mb " << endl;
+    PrintSMatrix(Mc);
+
+    cout << "Mt : transposed Mc" << endl;
+    TransSMatrix(Mt,Mc);
+    PrintSMatrix(Mt);
+    
+    system("pause");
+    return 0;
+}
+
+
+
