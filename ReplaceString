@@ -1,0 +1,129 @@
+//替换字符串中指定的字串
+#include<stdio.h>
+#include<stdlib.h>
+#include<ctype.h>
+
+#define OVERFLOW -1
+#define ERROR -1
+#define OK 1
+
+typedef struct{
+	char *ch;
+	int length;
+}HString;
+
+int StrAssign(HString &T,char *chars)
+{
+	int i,j;
+	char *c=chars;
+//	if(T.ch) free(T.ch);
+	for(i=0; *c; ++i,++c);
+	if(!i){
+		T.ch=NULL; T.length=0;
+	}
+	else{
+		if(!(T.ch=(char*)malloc(i*sizeof(char)))) 
+			exit(OVERFLOW);
+		for(j=0;j<i;j++) T.ch[j]=chars[j];
+		T.length=i;
+	}
+	return OK;
+}
+
+int StrLength(HString S)
+{
+	return S.length;
+}
+
+int StrCompare(HString S,HString T)
+{
+	for(int i=0;i<S.length&&i<T.length;++i)
+		if(S.ch[i]!=T.ch[i]) return S.ch[i]-T.ch[i];
+	return S.length-T.length;
+}
+
+int ClearString(HString &S)
+{
+	if(S.ch){
+		free(S.ch);	S.ch=NULL;
+	}
+	S.length=0;
+	return OK;
+}
+
+int Concat(HString &T,HString S1,HString S2)
+{
+	int j;
+	//	if(T.ch) free(T.ch);
+	if(!(T.ch=(char*)malloc((S1.length+S2.length)*sizeof(char))))     
+		exit(OVERFLOW);
+	
+	for(j=0;j<=S1.length-1;j++) T.ch[j]=S1.ch[j];
+	T.length=S1.length+S2.length;
+	
+	for(j;j<=T.length-1;j++) T.ch[j]=S2.ch[j-S1.length];	
+	return OK;
+}
+
+
+int SubString(HString &Sub,HString S,int pos,int len)
+{
+	
+	if(pos<1||len<0||len>S.length-pos+1)
+		return ERROR;
+	
+	if(Sub.ch) Sub.ch=NULL;
+
+	if(!len||pos>S.length){
+		Sub.ch=NULL;	Sub.length=0;
+	}
+	else{
+		Sub.ch=(char*)malloc(len*sizeof(char));
+		for(int i=0;i<len;i++) Sub.ch[i]=S.ch[pos+i-1];	
+		Sub.length=len;
+	}
+	return OK;
+}
+
+
+int StrReplace(HString &S,HString T,HString V)
+{
+	HString head,tail,temp,S0;
+	int i,n;
+	for(n=0,i=1;i<=(S.length-T.length+1);i++)
+	{
+		SubString(temp,S,i,T.length);
+		if(!StrCompare(temp,T))
+		{
+			SubString(head,S,1,i-1);
+			int m=S.length-i-T.length+1;
+			SubString(tail,S, i+T.length,m);
+			Concat(S0,head,V);
+			Concat(S,S0,tail);
+			i+=V.length-1;
+			n++;
+		}
+	}
+	printf("%s\n",S.ch);
+	return n;
+}
+
+int main()
+{	
+	HString S,t,v;
+//char temp[50];
+	char *temp;
+	temp=(char*)malloc(100*sizeof(char));
+	printf("Input the orginal string:");
+	scanf("%s",temp);
+	StrAssign(S,temp);
+	printf("Input the goal string:");
+	scanf("%s",temp);
+	StrAssign(t,temp);
+	printf("Input the new string:");
+	scanf("%s",temp);
+	StrAssign(v,temp);	
+	StrReplace(S,t,v);
+	system("pause");
+	return 0;
+}
