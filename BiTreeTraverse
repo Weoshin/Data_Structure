@@ -1,0 +1,122 @@
+//通过递归前中后序遍历二叉树，层序遍历二叉树
+//输入'A''B''C'' '' ''D''E'' ''G'' '' ''F'' '' '' '
+//前序(PreOrderTraverse)：  ABCDEGF
+//中序(InOrderTraverse)：   CBEGDFA
+//后序(PostOrderTraverse)： CGEFDBA
+//层序(LevelOrderTraverse): ABCDEFG
+#include <iostream>
+#include <stdio.h>
+#include <malloc.h>
+#include <queue>
+#include <stdlib.h>
+#include <windows.h>
+#define OK 1
+#define ERROR 0
+using namespace std;
+
+typedef struct BiTNode
+{
+	char data;
+	struct BiTNode *lchild;
+	struct BiTNode *rchild;
+}BiTNode,*BiTree;
+
+int CreateBiTree(BiTree &T)
+{
+	char ch;
+	scanf("%c",&ch);
+	if(ch == '\n')
+		return OK;
+	if(ch == ' ')
+		T = NULL;
+	else
+	{
+		if(!(T = (BiTNode *)malloc(sizeof(BiTNode))))
+			exit(0);
+		T -> data = ch;
+		CreateBiTree(T -> lchild);
+		CreateBiTree(T -> rchild);
+	}
+	return OK;
+}
+
+int Visit(char e)
+{
+	cout << e;
+	return OK;
+}
+
+int PreOrderTraverse(BiTree T)
+{
+	if(T)
+	{
+		if(Visit(T -> data))
+			if(PreOrderTraverse(T -> lchild))
+				if(PreOrderTraverse(T -> rchild))
+					return OK;
+	}
+	else
+		return OK;
+}
+
+int InOrderTraverse(BiTree T)
+{
+	if(T)
+	{
+		if(InOrderTraverse(T -> lchild))
+			if(Visit(T -> data))
+				if(InOrderTraverse(T -> rchild))
+					return OK;
+	}
+	else
+		return OK;
+}
+
+int PostOrderTraverse(BiTree T)
+{
+	if(T)
+	{
+		if(PostOrderTraverse(T -> lchild))
+			if(PostOrderTraverse(T -> rchild))
+				if(Visit(T -> data))
+					return OK;
+	}
+	else
+		return OK;
+}
+
+int LevelOrderTraverse(BiTree T)//层序遍历
+{	
+	queue<BiTree>Q;
+    BiTree q = T;
+	Q.push(T);	
+	if(T)
+	{
+		while(!Q.empty())
+        {
+            cout << Q.front() -> data;                     
+            if(Q.front() -> lchild)
+                Q.push(Q.front() -> lchild);       
+            if(Q.front() -> rchild)
+                Q.push(Q.front() -> rchild);                
+            Q.pop(); 		
+		}
+	}
+	return OK;
+}
+
+int main()
+{
+	BiTree T;
+	CreateBiTree(T);
+	cout << "PreOrderTraverse: ";
+	PreOrderTraverse(T);cout << endl;
+	cout << "InOrderTraverse: ";
+	InOrderTraverse(T);cout << endl;
+	cout << "PostOrderTraverse: ";
+	PostOrderTraverse(T);cout << endl;
+	cout << "LevelOrderTraverse: ";
+	LevelOrderTraverse(T);cout << endl; 
+        system("pause");
+	return 0;
+}
